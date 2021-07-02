@@ -45,7 +45,7 @@ export KBUILD_BUILD_HOST=buildbot
 function compile() {
 
     echo -e "${CYAN}"
-    make -j$(nproc) O=out ARCH=arm64 oppo6771_17065_defconfig
+    make -j$(nproc) O=out ARCH=arm64 realme-mt6771_defconfig
     make -j$(nproc) O=out \
                     ARCH=arm64 \
                     CC=clang \
