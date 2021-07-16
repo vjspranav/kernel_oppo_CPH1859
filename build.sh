@@ -34,6 +34,8 @@ echo "Done"
 KERNEL_DIR=$(pwd)
 IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz-dtb"
 TANGGAL=$(date +"%Y%m%d-%H")
+TIME=0
+VER=$(make kernelversion)  
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 PATH="${KERNEL_DIR}/clang/bin:${KERNEL_DIR}/gcc/bin:${KERNEL_DIR}/gcc32/bin:${PATH}"
 export KBUILD_COMPILER_STRING="$(${KERNEL_DIR}/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
@@ -52,36 +54,47 @@ function compile() {
                     CLANG_TRIPLE=aarch64-linux-gnu- \
                     CROSS_COMPILE=aarch64-linux-android- \
                     CROSS_COMPILE_ARM32=arm-linux-androideabi-
-   echo -e "${RST}"
 SUCCESS=$?
 	if [ $SUCCESS -eq 0 ]
+		END=$(date +%s)
+		TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
         	then
 		echo -e "${GRN}"
 		echo "------------------------------------------------------------"
 		echo "Compilation successful..."
+		echo "Compilation Time: ${TIME}"
         	echo "Image.gz-dtb can be found at out/arch/arm64/boot/Image.gz-dtb"
     		cp out/arch/arm64/boot/Image.gz-dtb AnyKernel
 		echo  "------------------------------------------------------------"
 		echo -e "${RST}"
 	else
+		END=$(date +%s)
+		TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
 		echo -e "${RED}"
                 echo "------------------------------------------------------------"
 		echo "Compilation failed.. check build logs for errors"
+                echo "Compilation Time: $1"
                 echo "------------------------------------------------------------"
 		echo -e "${RST}"
 	fi
-
+   echo -e "${RST}"
 }
 # Zipping
 function zipping() {
     echo -e "${YELLOW}"
     echo "Creating a flashable zip....."
     cd AnyKernel || exit 1
-    zip -r9 Stormbreaker-CPH1859-${TANGGAL}.zip * > /dev/null 2>&1
+    zip -r9 Stormbreaker-CPH1859-${TANGGAL}-${VER}.zip * > /dev/null 2>&1
     cd ..
-    echo "Zip stored at AnyKernel/Stormbreaker-CPH1859-${TANGGAL}.zip"
+    echo "Zip stored at AnyKernel/Stormbreaker-CPH1859-${TANGGAL}-${VER}.zip"
     echo -e "${RST}"
 }
+
+
+#Start Counting build time after build started we don't want wait time included
+START=$(date +%s)
+
+# Compile
 compile
 
 if [ $SUCCESS -eq 0 ]
@@ -95,5 +108,5 @@ then
         cp -r out/drivers/misc/mediatek/connectivity/wlan/core/gen3/wlan_drv_gen3.ko AnyKernel/modules/vendor/lib/modules
         cp -r out/drivers/misc/mediatek/met/met.ko AnyKernel/modules/vendor/lib/modules
         cp -r out/drivers/misc/mediatek/performance/fpsgo_cus/fpsgo.ko AnyKernel/modules/vendor/lib/modules
-	zipping
+	zipping $TIME
 fi
