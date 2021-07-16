@@ -123,3 +123,6 @@ clang/
 gcc/
 gcc32/
 AnyKernel/
+
+# Scripts
+linux-stable.sh
