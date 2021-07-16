@@ -99,6 +99,12 @@ compile
 
 if [ $SUCCESS -eq 0 ]
 then
+	
+	if [ -d AnyKernel ]
+	then
+		rm -rf AnyKernel
+	fi
+        git clone --depth=1 https://github.com/stormbreaker-project/AnyKernel3.git -b CPH1859 AnyKernel
 	mkdir -p AnyKernel/modules/vendor/lib/modules
 	cp -r out/drivers/misc/mediatek/connectivity/bt/mt66xx/legacy/bt_drv.ko AnyKernel/modules/vendor/lib/modules
         cp -r out/drivers/misc/mediatek/connectivity/common/wmt_drv.ko AnyKernel/modules/vendor/lib/modules
